@@ -207,17 +207,12 @@
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>MPU_buff</ItemText>
+          <ItemText>ch</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>ch</ItemText>
-        </Ww>
-        <Ww>
-          <count>5</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>ch,0x0A</ItemText>
+          <ItemText>MPU_RD_CNT,0x0A</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>
