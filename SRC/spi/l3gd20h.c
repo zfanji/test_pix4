@@ -1,18 +1,39 @@
 #include "l3gd20h.h"
 #include "main.h"
+#include "mpu6000.h"
+#include "lsm303d.h"
+
 
 uint8_t initPass2=0;
 
+
+
+void L3GD20_CS_init(void)
+{
+    GPIO_InitTypeDef  GPIO_InitStruct;
+
+    //L3GD20  片选IO
+    L3GD20_CS_CLK_ENABLE();
+    GPIO_InitStruct.Pin       = L3GD20_CS_PIN;
+    GPIO_InitStruct.Mode      = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull      = GPIO_PULLUP;        // spi片选低有效，上拉保证稳定
+    GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(L3GD20_CS_PORT, &GPIO_InitStruct);
+    L3GD20_CS_DISABLE();
+}
+
 void L3GD20_CS_ENABLE(void)
 {
+	HAL_GPIO_WritePin(MPU_CS_PORT, MPU_CS_PIN, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(LSM303D_CS_PORT, LSM303D_CS_PIN, GPIO_PIN_SET);
+	
   HAL_GPIO_WritePin(L3GD20_CS_PORT, L3GD20_CS_PIN, GPIO_PIN_RESET);
- // 	HAL_GPIO_WritePin(L3GD20_CS_PORT, L3GD20_CS_PIN, GPIO_PIN_SET);
+
 }
 
 void L3GD20_CS_DISABLE(void)
 {                
     HAL_GPIO_WritePin(L3GD20_CS_PORT, L3GD20_CS_PIN, GPIO_PIN_SET);
-//	HAL_GPIO_WritePin(L3GD20_CS_PORT, L3GD20_CS_PIN, GPIO_PIN_RESET);
 } 
 
 
@@ -150,42 +171,8 @@ void L3GD20_Write(uint8_t* Write_Buffer, uint8_t WriteAddr, uint16_t NumByteToWr
 
 void L3GD20H_CS_Init(void)
 {
-#if 0
-		//Define the corresponding structure
-		GPIO_InitTypeDef GPIO_InitStructure;
-		/* Enable INT1 GPIO clock */	
-		RCC_AHB1PeriphClockCmd(L3GD20_SPI_CS_GPIO_CLK, ENABLE);
-
-		/* Configure GPIO PIN for Lis Chip select */
-		GPIO_InitStructure.GPIO_Pin = L3GD20_SPI_CS_PIN;
-		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-		GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-		GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-		GPIO_Init(L3GD20_SPI_CS_GPIO_PORT, &GPIO_InitStructure);
-
-		/* Deselect : Chip Select high */
-		GPIO_SetBits(L3GD20_SPI_CS_GPIO_PORT, L3GD20_SPI_CS_PIN);
-  
-		/* Configure GPIO PINs to detect Interrupts */
-		GPIO_InitStructure.GPIO_Pin = L3GD20_SPI_INT1_PIN;
-		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-		GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-		GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
-		GPIO_Init(L3GD20_SPI_INT1_GPIO_PORT, &GPIO_InitStructure); 
-#endif
 		    // IO初始化
     GPIO_InitTypeDef  GPIO_InitStruct;
-
-    //L3GD20  片选IO
-    L3GD20_CS_CLK_ENABLE();
-    GPIO_InitStruct.Pin       = L3GD20_CS_PIN;
-    GPIO_InitStruct.Mode      = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull      = GPIO_PULLUP;        // spi片选低有效，上拉保证稳定
-    GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init(L3GD20_CS_PORT, &GPIO_InitStruct);
-    L3GD20_CS_DISABLE();
 
     //L3GD20 DRDY引脚 --外部中断 上升沿触发
     L3GD20_ACC_DRDY_CLK_ENABLE();

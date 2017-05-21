@@ -90,10 +90,9 @@ typedef struct {
     uint8_t flag;
 }MPU_report;
 
-
-
-
+void MPU6000_CS_init(void);
 void MPU6000_Init(void);
+void is_mpu6000(void);
 
 void MPU6000_INT_ENABLE(void);
 

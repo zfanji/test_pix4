@@ -7,37 +7,37 @@
 *******************************************************************************/ 
 #ifndef _MS5611_H_
 #define _MS5611_H_
-#include "stm32f4xx.h"
+#include "stm32f4xx_hal_conf.h"
 #include "stdint.h"
 #include "spi.h"
 //#include "delay.h"
 //**********************************************************************************//
-#define MS5611_ADC            ((u8)0x00)  // ADC Read
-#define MS5611_RESET          ((u8)0x1E)  // RESET
+#define MS5611_ADC            ((uint8_t)0x00)  // ADC Read
+#define MS5611_RESET          ((uint8_t)0x1E)  // RESET
 
-#define MS5611_D1_OSR_256     ((u8)0x40)  // 3 bytes
-#define MS5611_D1_OSR_512     ((u8)0x42)  // 3 bytes
-#define MS5611_D1_OSR_1024    ((u8)0x44)  // 3 bytes
-#define MS5611_D1_OSR_2048    ((u8)0x46)  // 3 bytes
-#define MS5611_D1_OSR_4096    ((u8)0x48)  // 3 bytes
+#define MS5611_D1_OSR_256     ((uint8_t)0x40)  // 3 bytes
+#define MS5611_D1_OSR_512     ((uint8_t)0x42)  // 3 bytes
+#define MS5611_D1_OSR_1024    ((uint8_t)0x44)  // 3 bytes
+#define MS5611_D1_OSR_2048    ((uint8_t)0x46)  // 3 bytes
+#define MS5611_D1_OSR_4096    ((uint8_t)0x48)  // 3 bytes
 
-#define MS5611_D2_OSR_256     ((u8)0x50)  // 3 bytes
-#define MS5611_D2_OSR_512     ((u8)0x52)  // 3 bytes
-#define MS5611_D2_OSR_1024    ((u8)0x54)  // 3 bytes
-#define MS5611_D2_OSR_2048    ((u8)0x56)  // 3 bytes
-#define MS5611_D2_OSR_4096    ((u8)0x58)  // 3 bytes
+#define MS5611_D2_OSR_256     ((uint8_t)0x50)  // 3 bytes
+#define MS5611_D2_OSR_512     ((uint8_t)0x52)  // 3 bytes
+#define MS5611_D2_OSR_1024    ((uint8_t)0x54)  // 3 bytes
+#define MS5611_D2_OSR_2048    ((uint8_t)0x56)  // 3 bytes
+#define MS5611_D2_OSR_4096    ((uint8_t)0x58)  // 3 bytes
 
 #define MS5611_ADC_D1         ((u8)0x48)	//选择4096
 #define MS5611_ADC_D2         ((u8)0x58)	//选择4096
 
-#define MS5611_PROM_RD				((u8)0xA0)  // 2 bytes
-#define MS5611_PROM_COEFF_1		((u8)0xA2)  // 2 bytes
-#define MS5611_PROM_COEFF_2		((u8)0xA4)  // 2 bytes
-#define MS5611_PROM_COEFF_3		((u8)0xA6)  // 2 bytes
-#define MS5611_PROM_COEFF_4		((u8)0xA8)  // 2 bytes
-#define MS5611_PROM_COEFF_5		((u8)0xAA)  // 2 bytes
-#define MS5611_PROM_COEFF_6		((u8)0xAC)  // 2 bytes
-#define MS5611_PROM_CRC				((u8)0xAE)  // 2 bytes
+#define MS5611_PROM_RD				((uint8_t)0xA0)  // 2 bytes
+#define MS5611_PROM_COEFF_1		((uint8_t)0xA2)  // 2 bytes
+#define MS5611_PROM_COEFF_2		((uint8_t)0xA4)  // 2 bytes
+#define MS5611_PROM_COEFF_3		((uint8_t)0xA6)  // 2 bytes
+#define MS5611_PROM_COEFF_4		((uint8_t)0xA8)  // 2 bytes
+#define MS5611_PROM_COEFF_5		((uint8_t)0xAA)  // 2 bytes
+#define MS5611_PROM_COEFF_6		((uint8_t)0xAC)  // 2 bytes
+#define MS5611_PROM_CRC				((uint8_t)0xAE)  // 2 bytes
 /*************************************************************************************
 16 bit reserved for manufacturer			0xA0			
 MS5611_PROM_COEFF_1										0xA2			//#define MS5611_PROM_COEFF_1   ((u8)0xA2)  // 2 bytes
@@ -77,8 +77,6 @@ typedef   union _MS5611_prom_data_shared
     uint8_t           buffer[sizeof(_MS5611_PROM_DATA)];
 }_MS5611_PROM_DATA_SHARED;
 
-////定义MS5611的PROM结构体
-extern _MS5611_PROM_DATA_SHARED MS5611_PROM_DATA_SHARED;
 /*************************************************************************************
 *************************************************************************************/
 
@@ -97,8 +95,6 @@ typedef   union _MS5611_normal_data_shared
     uint8_t           buffer1[sizeof(_MS5611_NORMAL_DATA)];
 }_MS5611_NORMAL_DATA_SHARED;
 
-////定义MS5611的数字输出结构体
-extern _MS5611_NORMAL_DATA_SHARED MS5611_NORMAL_DATA_SHARED;
 /*************************************************************************************
 *************************************************************************************/
 
@@ -107,25 +103,14 @@ extern _MS5611_NORMAL_DATA_SHARED MS5611_NORMAL_DATA_SHARED;
 
 //***********************************//
 /*****MPU6000	CS	Pin	definition*****/
-#if 0
-#define MS5611_GPIO_Periphera		RCC_AHB1Periph_GPIOD
-#define MS5611_CS_PORT						GPIOD
-#define MS5611_CS_SOURCE         GPIO_PinSource7
-#define MS5611_CS_PIN       			GPIO_Pin_7
-
-#define MS5611_ENABLE    GPIO_WriteBit(MS5611_CS_PORT,MS5611_CS_PIN,Bit_RESET);
-#define MS5611_DISABLE   GPIO_WriteBit(MS5611_CS_PORT,MS5611_CS_PIN,Bit_SET);
-#else
-#define MS5611_GPIO_Periphera		
-#define MS5611_CS_PORT
-#define MS5611_CS_SOURCE
-#define MS5611_CS_PIN
-
-#define MS5611_ENABLE
-#define MS5611_DISABLE
+#if 1
+#define MS5611_CS_PIN                      GPIO_PIN_7
+#define MS5611_CS_PORT                     GPIOD
+#define MS5611_CS_CLK_ENABLE()             __GPIOD_CLK_ENABLE()
 #endif
 //***********************************//
 void MS5611_CS_init(void);
+void MS5611_Init( void );
 static void MS5611_WriteCMD( uint8_t WriteCMD );
 static void MS5611_ReadData( uint8_t *ReadData );
 static void MS5611_Reset( void );
@@ -137,9 +122,6 @@ static void MS5611_ReadADC_Temperature(void);
 //static void MS5611_Calculate( void );
 
 void MS5611_SPIx_ReadADC(void);
-
-
-void MS5611_Init( void );
 
 #endif /* _MS5611_H_ */
 

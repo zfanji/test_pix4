@@ -12,10 +12,16 @@ extern SPI_HandleTypeDef Spi1Handle;
 uint16_t    MPU_RD_CNT;
 uint8_t initPass=0;
 
+void is_mpu6000(void){
+	uint8_t who;
+//	LSM303D_CS_ENABLE();
+	who = MPU6000_RW(0x00); 
+	printf("MPU6000 who=0x%x \r\n",who);
+	LSM303D_CS_DISABLE();
+}
 
-void MPU6000_Init(void)
-{
-    // IO初始化
+void MPU6000_CS_init(void){
+   // IO初始化
     GPIO_InitTypeDef  GPIO_InitStruct;
 
     //MPU6000  片选IO
@@ -26,6 +32,12 @@ void MPU6000_Init(void)
     GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
     HAL_GPIO_Init(MPU_CS_PORT, &GPIO_InitStruct);
     MPU6000_CS_DISABLE();
+}
+
+void MPU6000_Init(void)
+{
+    // IO初始化
+    GPIO_InitTypeDef  GPIO_InitStruct;
 
     //MPU6000 DRDY引脚 --外部中断 上升沿触发
     MPU_DRDY_CLK_ENABLE();
@@ -61,10 +73,12 @@ void MPU6000_Init(void)
     MPU6000_SET(MPUREG_INT_PIN_CFG, 0x30);  //配置终端模式，高电平出发，读寄存器就消除中断
     HAL_Delay(1);
 
-	if(initPass)
-    	DebugPrint("MPU6000初始化完成.\r\n");
-	else
-		DebugPrint("MPU6000初始化失败!!!\r\n");
+		is_mpu6000();
+
+		if(initPass)
+				DebugPrint("MPU6000初始化完成.\r\n");
+		else
+			DebugPrint("MPU6000初始化失败!!!\r\n");
 
 }
 
@@ -80,6 +94,11 @@ void MPU6000_INT_DISABLE(void)
    HAL_NVIC_DisableIRQ(EXTI15_10_IRQn);
 }
 
+
+uint8_t MPU6000_ONLY_READ(uint8_t addr){
+
+	HAL_SPI_Receive(&Spi1Handle,&addr,1,1000);
+}
 
 uint8_t MPU6000_RW(uint8_t TxData)
 {
@@ -108,8 +127,9 @@ void MPU6000_SET(uint8_t setAddr,uint8_t setData)
 
 void MPU6000_CS_ENABLE(void)
 {
-		LSM303D_CS_DISABLE();
-		L3GD20_CS_DISABLE();
+		HAL_GPIO_WritePin(L3GD20_CS_PORT, L3GD20_CS_PIN, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(LSM303D_CS_PORT, LSM303D_CS_PIN, GPIO_PIN_SET);
+	
     HAL_GPIO_WritePin(MPU_CS_PORT, MPU_CS_PIN, GPIO_PIN_RESET);//GPIO_PIN_RESET
 }
 
@@ -127,6 +147,7 @@ void SPI_MPU_Read(uint8_t *Buffer, uint8_t ReadAddr,uint8_t NumByteToRead)
 {
  	uint8_t i;
     MPU6000_CS_ENABLE();
+	
     MPU6000_RW(ReadAddr|=0x80);         //
 
     for(i=0;i<NumByteToRead;i++)

@@ -8,6 +8,7 @@
 #include "i2c.h"
 #include "rgbled.h"
 #include "l3gd20h.h"
+#include "ms5611.h"
 
 extern uint16_t     debug_message;
 extern MPU_report   MPU_report1;
@@ -17,7 +18,7 @@ extern LSM303D_ACC_report  LSM303D_ACC_report1;
 extern LSM303D_MAG_report  LSM303D_MAG_report1;
 extern uint16_t     LSM303D_RD_CNT;
 
-
+extern _MS5611_NORMAL_DATA_SHARED MS5611_NORMAL_DATA_SHARED;
 
 void assert_failed(uint8_t* file, uint32_t line)
 {
@@ -82,16 +83,19 @@ int main(void)
     //1秒一次定时器  用于刷主循环
     TIM5_Init();
 
+	  I2C2_Init();
+    RGBLED_Init();
 
     SPI1_Init();     // 初始化SPI1 用于操作传感器
+		MPU6000_CS_init();
+		LSM303D_CS_init();
+		L3GD20_CS_init();
+		MS5611_CS_init();
+
     MPU6000_Init();  // 初始化MPU6000
-
    // LSM303D_Init();
-
   //	L3GD20_Init();
-
-    I2C2_Init();
-    RGBLED_Init();
+	//	MS5611_Init();
 
 		DebugPrint("\r\n \r\n StartLoop...... \r\n");
     while (1)
@@ -102,23 +106,25 @@ int main(void)
             LED_Toggle(LED_AMBER);
             //秒级 调试信息
 #if 1
-		if(chLed==0){
-			setRGBLED(1,0,0);
-			chLed = 1;
-		}else if(chLed==1){
-			chLed = 2;
-			setRGBLED(0,1,0);
-		}else if(chLed==2){
-			chLed = 0;
-			setRGBLED(0,0,1);
-		}
-#endif					
+						if(chLed==0){
+							setRGBLED(1,0,0);	
+							chLed = 1;
+						}else if(chLed==1){
+							chLed = 2;
+							setRGBLED(0,1,0);
+						}else if(chLed==2){
+							chLed = 0;
+							setRGBLED(0,0,1);
+						}
+#endif		
+						
 #if 0
 						l3gd20Sta = L3GD20_GetDataStatus();
 						DebugPrint("l3gd20Sta=0x%x \r\n",l3gd20Sta);
 #endif		
-		
+				
 #if 1
+						is_mpu6000();
             // mpu6000信息
             DebugPrint("MPU6000 ACCEL x=%d, y=%d, z=%d\r\n",
                     MPU_report1.accel_x_raw,
@@ -126,7 +132,7 @@ int main(void)
                     MPU_report1.accel_z_raw);
 
 
-					
+						
             DebugPrint("MPU6000 GYRO  x=%d, y=%d, z=%d\r\n",
                     MPU_report1.gyro_x_raw,
                     MPU_report1.gyro_y_raw,

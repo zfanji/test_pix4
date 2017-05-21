@@ -1,5 +1,6 @@
 #include "lsm303d.h"
 #include "MPU6000.h"
+#include "l3gd20h.h"
 #include "stm32f4xx.h"
 #include "main.h"
 
@@ -13,10 +14,17 @@ extern SPI_HandleTypeDef Spi1Handle;
 uint16_t    LSM303D_RD_CNT;
 uint8_t initOK=0;
 
+void who_am_i(void){
+	uint8_t who;
+	LSM303D_CS_ENABLE();
+	who = LSM303D_RW(0x0f); 
+	printf("lsm303d who=0x%x \r\n",who);
+	LSM303D_CS_DISABLE();
+}
 
-void LSM303D_Init(void)
+void LSM303D_CS_init(void)
 {
-    // IO初始化
+  // IO初始化
     GPIO_InitTypeDef  GPIO_InitStruct;
 
     //LSM303D  片选IO
@@ -27,7 +35,13 @@ void LSM303D_Init(void)
     GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
     HAL_GPIO_Init(LSM303D_CS_PORT, &GPIO_InitStruct);
     LSM303D_CS_DISABLE();
+}
 
+void LSM303D_Init(void)
+{
+    // IO初始化
+    GPIO_InitTypeDef  GPIO_InitStruct;
+	
     //LSM303D DRDY引脚 --外部中断 上升沿触发
     LSM303D_ACC_DRDY_CLK_ENABLE();
     GPIO_InitStruct.Pin       = LSM303D_ACC_DRDY_PIN;       // GPIO4 入口有讲究 需注意
@@ -87,21 +101,27 @@ void LSM303D_Init(void)
     HAL_Delay(1);
     LSM303D_SET(LSM303D_REG_CTRL4, 0x04);  // DRDY on MAG on INT2
     HAL_Delay(1);
+	
 
+	who_am_i();
 
     MPU6000_INT_ENABLE();       // 完成配置 重新开启被关掉的中断
 
+
+	
+
 	if(initOK)
-    	DebugPrint("LSM303D初始化完成.\r\n");
+		DebugPrint("LSM303D初始化完成.\r\n");
 	else
 		DebugPrint("LSM303D初始化失败!!!\r\n");
 
 }
 
-
-
 void LSM303D_CS_ENABLE(void)
 {
+		HAL_GPIO_WritePin(MPU_CS_PORT, MPU_CS_PIN, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(L3GD20_CS_PORT, L3GD20_CS_PIN, GPIO_PIN_SET);
+	
     HAL_GPIO_WritePin(LSM303D_CS_PORT, LSM303D_CS_PIN, GPIO_PIN_RESET);
 }
 
@@ -139,7 +159,7 @@ void EXTI4_IRQHandler(void)
     if(__HAL_GPIO_EXTI_GET_IT(LSM303D_ACC_DRDY_PIN) != RESET)
       {
 
-       // LSM303D_ACC_READY(&LSM303D_ACC_report1);
+        LSM303D_ACC_READY(&LSM303D_ACC_report1);
 
         __HAL_GPIO_EXTI_CLEAR_IT(LSM303D_ACC_DRDY_PIN);
       }
