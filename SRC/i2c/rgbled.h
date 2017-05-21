@@ -32,6 +32,7 @@
 
 void RGBLED_Init(void);
 
+void setRGBLED(uint8_t rOn,uint8_t gOn,uint8_t bOn);
 
 
 

@@ -10,6 +10,7 @@
 MPU_report  MPU_report1;
 extern SPI_HandleTypeDef Spi1Handle;
 uint16_t    MPU_RD_CNT;
+uint8_t initPass=0;
 
 
 void MPU6000_Init(void)
@@ -60,7 +61,10 @@ void MPU6000_Init(void)
     MPU6000_SET(MPUREG_INT_PIN_CFG, 0x30);  //配置终端模式，高电平出发，读寄存器就消除中断
     HAL_Delay(1);
 
-    DebugPrint("MPU6000初始化完成!\r\n");
+	if(initPass)
+    	DebugPrint("MPU6000初始化完成.\r\n");
+	else
+		DebugPrint("MPU6000初始化失败!!!\r\n");
 
 }
 
@@ -79,8 +83,10 @@ void MPU6000_INT_DISABLE(void)
 
 uint8_t MPU6000_RW(uint8_t TxData)
 {
-    uint8_t RxData;
-    HAL_SPI_TransmitReceive(&Spi1Handle, &TxData, &RxData, 1, 0x5000);
+    uint8_t RxData,ret;
+    ret = HAL_SPI_TransmitReceive(&Spi1Handle, &TxData, &RxData, 1, 0x5000);
+	if(ret==0)
+		initPass=1;
     return RxData;
 }
 
@@ -98,12 +104,12 @@ void MPU6000_SET(uint8_t setAddr,uint8_t setData)
 
 void MPU6000_CS_ENABLE(void)
 {
-    HAL_GPIO_WritePin(MPU_CS_PORT, MPU_CS_PIN, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(MPU_CS_PORT, MPU_CS_PIN, GPIO_PIN_RESET);//GPIO_PIN_RESET
 }
 
 void MPU6000_CS_DISABLE(void)
 {
-    HAL_GPIO_WritePin(MPU_CS_PORT, MPU_CS_PIN, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(MPU_CS_PORT, MPU_CS_PIN, GPIO_PIN_SET);//GPIO_PIN_SET
 }
 
 

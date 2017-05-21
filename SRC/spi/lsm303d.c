@@ -11,6 +11,7 @@ LSM303D_MAG_report  LSM303D_MAG_report1;
 extern SPI_HandleTypeDef Spi1Handle;
 
 uint16_t    LSM303D_RD_CNT;
+uint8_t initOK=0;
 
 
 void LSM303D_Init(void)
@@ -46,14 +47,6 @@ void LSM303D_Init(void)
     HAL_NVIC_SetPriority(EXTI4_IRQn, 4, 0); // 设置外部引脚中断
     HAL_NVIC_EnableIRQ(EXTI4_IRQn);         // 启动外部引脚中断
 
-    // mag_int
-    HAL_NVIC_SetPriority(EXTI1_IRQn, 4, 0); // 设置外部引脚中断
-    HAL_NVIC_EnableIRQ(EXTI1_IRQn);         // 启动外部引脚中断
-
-
-    // 初始化LSM303D需要使用SPI1  但已被MPU6000占用
-    // 为了防碰撞 因此需要先关掉SPI1上已经完成初始化的芯片的 RD中断
-    MPU6000_INT_DISABLE();
 
     // 开始初始化LSM303D
 
@@ -98,7 +91,10 @@ void LSM303D_Init(void)
 
     MPU6000_INT_ENABLE();       // 完成配置 重新开启被关掉的中断
 
-    DebugPrint("LSM303D初始化完成!\r\n");
+	if(initOK)
+    	DebugPrint("LSM303D初始化完成.\r\n");
+	else
+		DebugPrint("LSM303D初始化失败!!!\r\n");
 
 }
 
@@ -117,8 +113,11 @@ void LSM303D_CS_DISABLE(void)
 
 uint8_t LSM303D_RW(uint8_t TxData)
 {
-    uint8_t RxData;
-    HAL_SPI_TransmitReceive(&Spi1Handle, &TxData, &RxData, 1, 0x5000);
+    uint8_t RxData,ret;
+    ret = HAL_SPI_TransmitReceive(&Spi1Handle, &TxData, &RxData, 1, 0x5000);
+	if(ret==0){
+		initOK = 1;
+	}
     return RxData;
 }
 
