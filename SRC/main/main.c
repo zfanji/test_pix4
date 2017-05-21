@@ -86,14 +86,14 @@ int main(void)
     SPI1_Init();     // 初始化SPI1 用于操作传感器
     MPU6000_Init();  // 初始化MPU6000
 
-    LSM303D_Init();
+   // LSM303D_Init();
 
-		L3GD20_Init();
+  //	L3GD20_Init();
 
     I2C2_Init();
     RGBLED_Init();
 
-	DebugPrint("\r\n \r\n StartLoop...... \r\n");
+		DebugPrint("\r\n \r\n StartLoop...... \r\n");
     while (1)
     {
         if(1 == debug_message)
@@ -113,12 +113,12 @@ int main(void)
 			setRGBLED(0,0,1);
 		}
 #endif					
-#if 1
+#if 0
 						l3gd20Sta = L3GD20_GetDataStatus();
 						DebugPrint("l3gd20Sta=0x%x \r\n",l3gd20Sta);
 #endif		
 		
-#if 1 
+#if 1
             // mpu6000信息
             DebugPrint("MPU6000 ACCEL x=%d, y=%d, z=%d\r\n",
                     MPU_report1.accel_x_raw,
@@ -135,7 +135,7 @@ int main(void)
             MPU_RD_CNT=0;
 #endif
 					
-#if 1
+#if 0
             DebugPrint("LSM303D ACCEL x=%d, y=%d, z=%d\r\n",
                           LSM303D_ACC_report1.accel_x_raw,
                           LSM303D_ACC_report1.accel_y_raw,

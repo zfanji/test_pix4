@@ -4,8 +4,8 @@
 #include "MPU6000.h"
 #include "stm32f4xx.h"
 #include "main.h"
-
-
+#include "lsm303d.h"
+#include "l3gd20h.h"
 
 MPU_report  MPU_report1;
 extern SPI_HandleTypeDef Spi1Handle;
@@ -85,9 +85,13 @@ uint8_t MPU6000_RW(uint8_t TxData)
 {
     uint8_t RxData,ret;
     ret = HAL_SPI_TransmitReceive(&Spi1Handle, &TxData, &RxData, 1, 0x5000);
-	if(ret==0)
+	if(ret!=0){
+		printf("MPU6000_RW erro!!! \r\n");
+	}else{
 		initPass=1;
-    return RxData;
+	}
+
+  return RxData;
 }
 
 void MPU6000_SET(uint8_t setAddr,uint8_t setData)
@@ -104,6 +108,8 @@ void MPU6000_SET(uint8_t setAddr,uint8_t setData)
 
 void MPU6000_CS_ENABLE(void)
 {
+		LSM303D_CS_DISABLE();
+		L3GD20_CS_DISABLE();
     HAL_GPIO_WritePin(MPU_CS_PORT, MPU_CS_PIN, GPIO_PIN_RESET);//GPIO_PIN_RESET
 }
 

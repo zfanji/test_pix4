@@ -206,8 +206,8 @@ typedef struct
 //**********************************************************************************//
 //**********************************************************************************//
 void L3GD20_Init(void);
-void LSM303D_CS_ENABLE(void);
-void LSM303D_CS_DISABLE(void);
+void L3GD20_CS_ENABLE(void);
+void L3GD20_CS_DISABLE(void);
 uint8_t L3GD20_GetDataStatus(void);
 #endif /* _L3GD20H_H_*/
 
