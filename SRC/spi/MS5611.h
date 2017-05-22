@@ -119,6 +119,7 @@ static void MS5611_StarADC_Pressure(void);
 static void MS5611_StarADC_Temperature(void);
 static void MS5611_ReadADC_Pressure(void);
 static void MS5611_ReadADC_Temperature(void);
+void getMs5611Data( void );
 //static void MS5611_Calculate( void );
 
 void MS5611_SPIx_ReadADC(void);

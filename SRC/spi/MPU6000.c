@@ -6,6 +6,7 @@
 #include "main.h"
 #include "lsm303d.h"
 #include "l3gd20h.h"
+#include "ms5611.h"
 
 MPU_report  MPU_report1;
 extern SPI_HandleTypeDef Spi1Handle;
@@ -14,7 +15,7 @@ uint8_t initPass=0;
 
 void is_mpu6000(void){
 	uint8_t who;
-//	LSM303D_CS_ENABLE();
+	LSM303D_CS_ENABLE();
 	who = MPU6000_RW(0x00); 
 	printf("MPU6000 who=0x%x \r\n",who);
 	LSM303D_CS_DISABLE();
@@ -127,8 +128,9 @@ void MPU6000_SET(uint8_t setAddr,uint8_t setData)
 
 void MPU6000_CS_ENABLE(void)
 {
-		HAL_GPIO_WritePin(L3GD20_CS_PORT, L3GD20_CS_PIN, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(L3GD20_CS_PORT, L3GD20_CS_PIN, GPIO_PIN_SET);
     HAL_GPIO_WritePin(LSM303D_CS_PORT, LSM303D_CS_PIN, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(MS5611_CS_PORT, MS5611_CS_PIN, GPIO_PIN_SET);
 	
     HAL_GPIO_WritePin(MPU_CS_PORT, MPU_CS_PIN, GPIO_PIN_RESET);//GPIO_PIN_RESET
 }

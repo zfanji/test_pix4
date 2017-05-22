@@ -1,6 +1,7 @@
 #include "lsm303d.h"
 #include "MPU6000.h"
 #include "l3gd20h.h"
+#include "ms5611.h"
 #include "stm32f4xx.h"
 #include "main.h"
 
@@ -20,6 +21,9 @@ void who_am_i(void){
 	who = LSM303D_RW(0x0f); 
 	printf("lsm303d who=0x%x \r\n",who);
 	LSM303D_CS_DISABLE();
+
+	
+	LSM303D_ACC_READY(&LSM303D_ACC_report1);
 }
 
 void LSM303D_CS_init(void)
@@ -102,13 +106,7 @@ void LSM303D_Init(void)
     LSM303D_SET(LSM303D_REG_CTRL4, 0x04);  // DRDY on MAG on INT2
     HAL_Delay(1);
 	
-
-	who_am_i();
-
     MPU6000_INT_ENABLE();       // 完成配置 重新开启被关掉的中断
-
-
-	
 
 	if(initOK)
 		DebugPrint("LSM303D初始化完成.\r\n");
@@ -119,8 +117,9 @@ void LSM303D_Init(void)
 
 void LSM303D_CS_ENABLE(void)
 {
-		HAL_GPIO_WritePin(MPU_CS_PORT, MPU_CS_PIN, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(L3GD20_CS_PORT, L3GD20_CS_PIN, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(MPU_CS_PORT, MPU_CS_PIN, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(L3GD20_CS_PORT, L3GD20_CS_PIN, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(MS5611_CS_PORT, MS5611_CS_PIN, GPIO_PIN_SET);
 	
     HAL_GPIO_WritePin(LSM303D_CS_PORT, LSM303D_CS_PIN, GPIO_PIN_RESET);
 }
@@ -137,6 +136,9 @@ uint8_t LSM303D_RW(uint8_t TxData)
     ret = HAL_SPI_TransmitReceive(&Spi1Handle, &TxData, &RxData, 1, 0x5000);
 	if(ret==0){
 		initOK = 1;
+	//	printf("LSM303D_RW ok!!! RxData=0%x \r\n",RxData);
+	}else{
+		printf("LSM303D_RW erro!!! \r\n");
 	}
     return RxData;
 }

@@ -2,6 +2,7 @@
 #include "main.h"
 #include "mpu6000.h"
 #include "lsm303d.h"
+#include "ms5611.h"
 
 
 uint8_t initPass2=0;
@@ -26,8 +27,9 @@ void L3GD20_CS_ENABLE(void)
 {
 	HAL_GPIO_WritePin(MPU_CS_PORT, MPU_CS_PIN, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(LSM303D_CS_PORT, LSM303D_CS_PIN, GPIO_PIN_SET);
-	
-  HAL_GPIO_WritePin(L3GD20_CS_PORT, L3GD20_CS_PIN, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(MS5611_CS_PORT, MS5611_CS_PIN, GPIO_PIN_SET);
+
+	HAL_GPIO_WritePin(L3GD20_CS_PORT, L3GD20_CS_PIN, GPIO_PIN_RESET);
 
 }
 
@@ -37,74 +39,18 @@ void L3GD20_CS_DISABLE(void)
 } 
 
 
-#if 0
-void L3GD20_Write(uint8_t* Write_Buffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
-{
-  /* Configure the MS bit: 
-       - When 0, the address will remain unchanged in multiple read/write commands.
-       - When 1, the address will be auto incremented in multiple read/write commands.
-  */
-  if(NumByteToWrite > 0x01)
-  {
-    WriteAddr |= (uint8_t)MULTIPLEBYTE_CMD;
-  }
-  /* Set chip select Low at the start of the transmission */
-  L3GD20_CS_LOW();
-  
-  /* Send the Address of the indexed register */
-	SPI1_ReadWriteByte(SPI1,WriteAddr);
-  /* Send the data that will be written into the device (MSB First) */
-  while(NumByteToWrite >= 0x01)
-  {
-		SPI1_ReadWriteByte(SPI1,*Write_Buffer);	
-    NumByteToWrite--;
-    Write_Buffer++;
-  }
-  
-  /* Set chip select High at the end of the transmission */ 
-  L3GD20_CS_HIGH();
-}
-
-
-void L3GD20_Read(uint8_t* Read_Buffer, uint8_t ReadAddr, uint16_t NumByteToRead)
-{  
-  if(NumByteToRead > 0x01)
-  {
-    ReadAddr |= (uint8_t)(READWRITE_CMD | MULTIPLEBYTE_CMD);
-  }
-  else
-  {
-    ReadAddr |= (uint8_t)READWRITE_CMD;
-  }
-  /* Set chip select Low at the start of the transmission */
-  L3GD20_CS_LOW();
-  
-  /* Send the Address of the indexed register */
-	SPI1_ReadWriteByte(SPI1,ReadAddr);
-  
-  /* Receive the data that will be read from the device (MSB First) */
-  while(NumByteToRead > 0x00)
-  {
-    /* Send dummy byte (0x00) to generate the SPI clock to L3GD20 (Slave device) */
-    *Read_Buffer = SPI1_ReadWriteByte(SPI1,DUMMY_BYTE);		
-    NumByteToRead--;
-    Read_Buffer++;
-  }
-  
-  /* Set chip select High at the end of the transmission */ 
-  L3GD20_CS_HIGH();
-} 
-
-#else
+#if 1
 extern SPI_HandleTypeDef Spi1Handle;
 
 uint8_t L3GD20_RW(uint8_t TxData)
 {
     uint8_t RxData,ret;
     ret = HAL_SPI_TransmitReceive(&Spi1Handle, &TxData, &RxData, 1, 0x5000);
-		if(ret==0){
-			initPass2 = 1;
-		}
+	if(ret==0){
+		initPass2 = 1;
+	}else{
+		printf("L3GD20_RW erro!!!!!");
+	}
     return RxData;
 }
 

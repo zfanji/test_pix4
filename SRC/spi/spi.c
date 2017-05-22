@@ -60,60 +60,7 @@ void SPI1_Init(void)
     HAL_SPI_Init(&Spi1Handle);
     __HAL_SPI_ENABLE(&Spi1Handle);     // 启动 SPI1 外设
 
-
 }
-
-
-void SPI1_SENSORS_CTRL_Init(void)
-{
-    GPIO_InitTypeDef  GPIO_InitStruct;
-
-    GYRO_CS_CLK_ENABLE();
-    ACCEL_MAG_CS_CLK_ENABLE();
-    BARO_CS_CLK_ENABLE();
-
-    // L3GD20
-    GPIO_InitStruct.Pin       = GYRO_CS_PIN;
-    GPIO_InitStruct.Mode      = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull      = GPIO_PULLUP;        // spi片选低有效，上拉保证稳定
-    GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init(GYRO_CS_PORT, &GPIO_InitStruct);
-
-    // LSM303D
-    GPIO_InitStruct.Pin       = ACCEL_MAG_CS_PIN;
-    GPIO_InitStruct.Mode      = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull      = GPIO_PULLUP;        // spi片选低有效，上拉保证稳定
-    GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init(ACCEL_MAG_CS_PORT, &GPIO_InitStruct);
-
-    // MS5611
-    GPIO_InitStruct.Pin       = BARO_CS_PIN;
-    GPIO_InitStruct.Mode      = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull      = GPIO_PULLUP;        // spi片选低有效，上拉保证稳定
-    GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init(BARO_CS_PORT, &GPIO_InitStruct);
-
-}
-
-
-
-void SENSORS_INT_ON()
-{
-
-
-
-
-}
-
-
-void SENSORS_INT_OFF()
-{
-
-
-
-
-}
-
 
 
 

@@ -150,5 +150,7 @@ void LSM303D_ACC_READY(LSM303D_ACC_report *pLSM303D_ACC_report);
 
 void LSM303D_MAG_READY(LSM303D_MAG_report *pLSM303D_MAG_report);
 
+void who_am_i(void);
+
 #endif  // __LSM303D_H
 

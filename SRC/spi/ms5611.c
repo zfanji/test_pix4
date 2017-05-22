@@ -1,5 +1,7 @@
 #include "ms5611.h"
-
+#include "MPU6000.h"
+#include "l3gd20h.h"
+#include "lsm303d.h"
 
 ////定义MS5611的PROM结构体
 ////定义MS5611的PROM结构体
@@ -9,10 +11,14 @@ _MS5611_NORMAL_DATA_SHARED MS5611_NORMAL_DATA_SHARED;
 *************************************************************************************/
 
 extern SPI_HandleTypeDef Spi1Handle;
+uint8_t initPass3=0;
 
 void MS5611_CS_ENABLE(void)
 {
-	
+	HAL_GPIO_WritePin(MPU_CS_PORT, MPU_CS_PIN, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(L3GD20_CS_PORT, L3GD20_CS_PIN, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(LSM303D_CS_PORT, LSM303D_CS_PIN, GPIO_PIN_SET);
+		
     HAL_GPIO_WritePin(MS5611_CS_PORT, MS5611_CS_PIN, GPIO_PIN_RESET);
 }
 
@@ -25,7 +31,11 @@ uint8_t MS5611_RW(uint8_t TxData)
 {
     uint8_t RxData,ret;
     ret = HAL_SPI_TransmitReceive(&Spi1Handle, &TxData, &RxData, 1, 0x5000);
-
+	if(ret==0){
+		initPass3 = 1;
+	}else{
+		printf("MS5611_RW erro!!!!!");
+	}
     return RxData;
 }
 //MS5611片选管脚初始化函数
@@ -128,8 +138,8 @@ static void MS5611_ReadADC_Temperature(void)
 
 void MS5611_Init( void )
 {
-  	MS5611_CS_init();
-  /* Reset */
+		MS5611_CS_init();
+		/* Reset */
 		MS5611_Reset();
 
 		/* Read PROM */
@@ -148,6 +158,29 @@ void MS5611_Init( void )
 //  /* Calculate */
 //  MS5611_Calculate();
 }
+
+
+
+void getMs5611Data( void ){
+	/* Reset */
+	MS5611_Reset();
+	
+	/* Read PROM */
+	MS5611_ReadPROM();
+	HAL_Delay(3);
+	
+	/* D1, D2 Conversion */
+	MS5611_StarADC_Pressure();
+	HAL_Delay(1);
+	MS5611_ReadADC_Pressure();
+	
+	MS5611_StarADC_Temperature();
+	HAL_Delay(1);
+	MS5611_ReadADC_Temperature();
+	
+
+}
+
 
 //static void MS5611_Calculate(s32* T, s32 *P)
 //{
